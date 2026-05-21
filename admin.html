@@ -103,6 +103,15 @@ button {
 
 .star { color: #d4af37; }
 
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+}
 </style>
 </head>
 
@@ -163,6 +172,7 @@ button {
 
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -179,34 +189,42 @@ const db = firebase.database();
 
 let allData = [];
 let filteredData = [];
+let keys = [];
 let chart;
 
+// LOAD DATA
 db.ref("kritik_saran").on("value", snap=>{
     allData = [];
+    keys = [];
     snap.forEach(child=>{
         allData.push(child.val());
+        keys.push(child.key);
     });
     renderData(allData);
 });
 
+// FILTER
 function applyFilter(){
     let start = startDate.value ? new Date(startDate.value) : null;
     let end = endDate.value ? new Date(endDate.value) : null;
-    let bulan = bulan.value;
+    let bulanVal = bulan.value;
 
-    filteredData = allData.filter(d=>{
-        let tgl = new Date(parseInt(d.waktu));
+    filteredData = [];
 
-        if(start && tgl < start) return false;
-        if(end && tgl > end) return false;
-        if(bulan !== "" && tgl.getMonth() != bulan) return false;
+    allData.forEach((d,i)=>{
+        let tgl = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
 
-        return true;
+        if(start && tgl < start) return;
+        if(end && tgl > end) return;
+        if(bulanVal !== "" && tgl.getMonth() != bulanVal) return;
+
+        filteredData.push({...d, key: keys[i]});
     });
 
     renderData(filteredData);
 }
 
+// RENDER
 function renderData(data){
 
     let total=0,totalNilai=0;
@@ -215,8 +233,9 @@ function renderData(data){
     const container = document.getElementById("dataContainer");
     container.innerHTML="";
 
-    data.forEach(d=>{
-        let tgl = new Date(parseInt(d.waktu));
+    data.forEach((d, index)=>{
+
+        let tgl = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
 
         total++;
 
@@ -231,9 +250,16 @@ function renderData(data){
         container.innerHTML += `
         <div class="card">
         <b>${d.nama}</b><br>
-        ${tgl.toLocaleDateString('id-ID')}<br>
-        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br>
-        ${d.saran || "-"}
+        <small>No HP: ${d.hp || "-"}</small><br>
+        <small>${tgl.toLocaleDateString('id-ID')}</small><br><br>
+
+        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br><br>
+
+        <b>Saran:</b><br>${d.saran || "-"}<br>
+
+        <button class="delete-btn" onclick="hapusData('${d.key || keys[index]}')">
+        Hapus
+        </button>
         </div>`;
     });
 
@@ -248,6 +274,7 @@ function renderData(data){
     updateChart([q1/total,q2/total,q3/total,q4/total,q5/total]);
 }
 
+// CHART
 function updateChart(data){
     if(chart) chart.destroy();
 
@@ -255,25 +282,36 @@ function updateChart(data){
         type:'bar',
         data:{
             labels:['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
-            datasets:[{data:data}]
+            datasets:[{
+                label:'Rata-rata',
+                data:data
+            }]
         }
     });
 }
 
+// HAPUS
+function hapusData(id){
+    if(confirm("Yakin hapus data?")){
+        db.ref("kritik_saran/"+id).remove();
+    }
+}
+
+// EXPORT
 function exportExcel(){
     let data = filteredData.length ? filteredData : allData;
 
     let csv = [];
-
-    csv.push(["No","Nama","Tanggal","Q1","Q2","Q3","Q4","Q5","Rata-rata","Saran"]);
+    csv.push(["No","Nama","No HP","Tanggal","Q1","Q2","Q3","Q4","Q5","Rata-rata","Saran"]);
 
     data.forEach((d,i)=>{
         let rata = ((d.q1+d.q2+d.q3+d.q4+d.q5)/5).toFixed(1);
-        let tgl = new Date(parseInt(d.waktu)).toLocaleString('id-ID');
+        let tgl = d.waktu ? new Date(parseInt(d.waktu)).toLocaleString('id-ID') : "-";
 
         csv.push([
             i+1,
             d.nama,
+            d.hp,
             tgl,
             d.q1,
             d.q2,
