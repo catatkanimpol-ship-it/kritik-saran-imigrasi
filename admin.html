@@ -60,7 +60,6 @@ input, select {
     padding: 8px;
 }
 
-/* BUTTON */
 button {
     padding: 8px 12px;
     border: none;
@@ -104,9 +103,6 @@ button {
 
 .star { color: #d4af37; }
 
-@media(max-width:600px){
-.filter-box { flex-direction: column; }
-}
 </style>
 </head>
 
@@ -124,7 +120,6 @@ button {
 
 <h2>Laporan Kritik & Saran</h2>
 
-<!-- FILTER -->
 <div class="filter-box">
     <input type="date" id="startDate">
     <input type="date" id="endDate">
@@ -149,7 +144,6 @@ button {
     <button onclick="exportExcel()">Export Excel</button>
 </div>
 
-<!-- STATS -->
 <div class="stats">
     <div class="box">
         <h3 id="total">0</h3>
@@ -185,6 +179,7 @@ const db = firebase.database();
 
 let allData = [];
 let filteredData = [];
+let chart;
 
 db.ref("kritik_saran").on("value", snap=>{
     allData = [];
@@ -195,15 +190,15 @@ db.ref("kritik_saran").on("value", snap=>{
 });
 
 function applyFilter(){
-    let start = new Date(startDate.value);
-    let end = new Date(endDate.value);
-    let bulan = bulanSelect.value;
+    let start = startDate.value ? new Date(startDate.value) : null;
+    let end = endDate.value ? new Date(endDate.value) : null;
+    let bulan = bulan.value;
 
     filteredData = allData.filter(d=>{
-        let tgl = new Date(d.waktu);
+        let tgl = new Date(parseInt(d.waktu));
 
-        if(startDate.value && tgl < start) return false;
-        if(endDate.value && tgl > end) return false;
+        if(start && tgl < start) return false;
+        if(end && tgl > end) return false;
         if(bulan !== "" && tgl.getMonth() != bulan) return false;
 
         return true;
@@ -221,6 +216,8 @@ function renderData(data){
     container.innerHTML="";
 
     data.forEach(d=>{
+        let tgl = new Date(parseInt(d.waktu));
+
         total++;
 
         q1+=d.q1;
@@ -234,22 +231,27 @@ function renderData(data){
         container.innerHTML += `
         <div class="card">
         <b>${d.nama}</b><br>
-        ${new Date(d.waktu).toLocaleDateString('id-ID')}<br>
+        ${tgl.toLocaleDateString('id-ID')}<br>
         ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br>
-        ${d.saran}
+        ${d.saran || "-"}
         </div>`;
     });
 
-    totalEl.innerText = total;
-    avgEl.innerText = total ? (totalNilai/total).toFixed(1) : 0;
+    document.getElementById("total").innerText = total;
+    document.getElementById("avg").innerText = total ? (totalNilai/total).toFixed(1) : 0;
 
-    updateChart([q1/total||0,q2/total||0,q3/total||0,q4/total||0,q5/total||0]);
+    if(total === 0){
+        updateChart([0,0,0,0,0]);
+        return;
+    }
+
+    updateChart([q1/total,q2/total,q3/total,q4/total,q5/total]);
 }
 
-let chart;
 function updateChart(data){
     if(chart) chart.destroy();
-    chart = new Chart(barChart,{
+
+    chart = new Chart(document.getElementById("barChart"), {
         type:'bar',
         data:{
             labels:['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
@@ -258,39 +260,21 @@ function updateChart(data){
     });
 }
 
-// EXPORT
 function exportExcel(){
-
     let data = filteredData.length ? filteredData : allData;
 
     let csv = [];
 
-    // HEADER
-    csv.push([
-        "No",
-        "Nama",
-        "Nomor HP",
-        "Tanggal",
-        "Pelayanan",
-        "Kecepatan",
-        "Kemudahan",
-        "Informasi",
-        "Kepuasan",
-        "Rata-rata",
-        "Saran"
-    ]);
+    csv.push(["No","Nama","Tanggal","Q1","Q2","Q3","Q4","Q5","Rata-rata","Saran"]);
 
-    data.forEach((d, index)=>{
-
-        let tanggal = new Date(d.waktu).toLocaleString('id-ID');
-
+    data.forEach((d,i)=>{
         let rata = ((d.q1+d.q2+d.q3+d.q4+d.q5)/5).toFixed(1);
+        let tgl = new Date(parseInt(d.waktu)).toLocaleString('id-ID');
 
         csv.push([
-            index+1,
+            i+1,
             d.nama,
-            d.hp,
-            tanggal,
+            tgl,
             d.q1,
             d.q2,
             d.q3,
@@ -301,10 +285,9 @@ function exportExcel(){
         ]);
     });
 
-    // FORMAT CSV RAPI
     let csvContent = csv.map(e => e.join(",")).join("\n");
 
-    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let blob = new Blob([csvContent], { type: 'text/csv' });
 
     let link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
