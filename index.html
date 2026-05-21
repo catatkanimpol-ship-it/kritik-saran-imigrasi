@@ -12,9 +12,9 @@ body {
     background: #eef2f7;
 }
 
-/* CONTAINER */
+/* WRAPPER FIX */
 .wrapper {
-    max-width: 600px;
+    max-width: 700px;
     margin: auto;
 }
 
@@ -31,89 +31,82 @@ header {
     gap: 10px;
 }
 
-.logo { width: 35px; }
+.logo {
+    width: 40px;
+}
 
 .title {
     color: white;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
 }
 
 /* HERO */
 .hero {
     text-align: center;
-    padding: 50px 20px;
+    padding: 60px 20px;
     background: linear-gradient(135deg, #0b3d91, #1e5ed6);
     color: white;
 }
 
 .hero h1 {
-    font-size: 24px;
+    font-size: 26px;
     margin-bottom: 10px;
 }
 
 .hero p {
-    font-size: 14px;
-    opacity: 0.9;
+    font-size: 15px;
+    max-width: 500px;
+    margin: auto;
 }
 
 /* FORM CARD */
 .form-card {
     background: white;
-    margin: -40px 15px 20px 15px;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+    margin: -50px 20px 30px 20px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
 }
 
 h2 {
     text-align: center;
     color: #0b3d91;
+    font-size: 22px;
 }
 
 .subtitle {
     text-align: center;
-    font-size: 13px;
     color: gray;
-    margin-bottom: 15px;
+    font-size: 14px;
+    margin-bottom: 20px;
 }
 
 /* INPUT */
 label {
-    font-size: 13px;
-    margin-top: 12px;
+    font-size: 14px;
+    margin-top: 15px;
     display: block;
 }
 
 input, textarea {
     width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-/* BUTTON */
-button {
-    width: 100%;
     padding: 12px;
-    background: #d4af37;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    margin-top: 15px;
-    font-weight: bold;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
 }
 
 /* STAR */
 .stars {
     display: flex;
-    gap: 5px;
-    margin-top: 5px;
+    gap: 6px;
+    margin-top: 8px;
 }
 
 .star {
-    font-size: 22px;
+    font-size: 26px;
     color: #ccc;
     cursor: pointer;
 }
@@ -122,27 +115,40 @@ button {
     color: #d4af37;
 }
 
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 14px;
+    background: #d4af37;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
 /* SUCCESS */
 .success-box {
     display: none;
     text-align: center;
     background: #d4edda;
     color: #155724;
-    padding: 25px;
+    padding: 30px;
     margin: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 .success-icon {
-    font-size: 50px;
+    font-size: 60px;
 }
 
 /* FOOTER */
 .footer {
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
     color: gray;
-    padding: 15px;
+    padding: 20px;
 }
 </style>
 
@@ -151,7 +157,6 @@ button {
 
 <div class="wrapper">
 
-<!-- HEADER -->
 <header>
     <div class="logo-group">
         <img src="kemenkumham.png" class="logo">
@@ -160,20 +165,17 @@ button {
     </div>
 </header>
 
-<!-- HERO -->
 <section class="hero">
     <h1>Sampaikan Kritik & Saran Anda</h1>
     <p>Kami berkomitmen meningkatkan kualitas pelayanan melalui masukan yang Anda berikan</p>
 </section>
 
-<!-- SUCCESS -->
 <div class="success-box" id="successBox">
     <div class="success-icon">✅</div>
-    <h3>Pengiriman Berhasil</h3>
-    <p>Terima kasih atas partisipasi Anda dalam meningkatkan kualitas pelayanan kami</p>
+    <h3>Berhasil</h3>
+    <p>Masukan Anda telah berhasil dikirim</p>
 </div>
 
-<!-- FORM -->
 <div class="form-card" id="formSection">
 
 <h2>Formulir Penilaian Pelayanan</h2>
@@ -230,7 +232,6 @@ const db = firebase.database();
 
 let ratings = {q1:0,q2:0,q3:0,q4:0,q5:0};
 
-// STAR
 document.querySelectorAll(".stars").forEach(container=>{
     let id = container.dataset.id;
 
@@ -250,7 +251,6 @@ document.querySelectorAll(".stars").forEach(container=>{
     }
 });
 
-// SUBMIT
 document.getElementById("feedbackForm").onsubmit = function(e){
     e.preventDefault();
 
