@@ -9,23 +9,26 @@
 body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    background: #f4f7fb;
+    background: #eef2f7;
+}
+
+/* WRAPPER (BIAR SAMA DI HP & PC) */
+.wrapper {
+    max-width: 600px;
+    margin: auto;
 }
 
 /* HEADER */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     background: #0b3d91;
     color: white;
-    padding: 12px 15px;
-    flex-wrap: wrap;
+    padding: 15px;
 }
 
 .logo-group {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .logo-group img {
@@ -33,22 +36,16 @@ header {
     margin-right: 8px;
 }
 
-.title h3 {
+.title {
     font-size: 14px;
-    margin: 0;
-}
-
-nav a {
-    color: white;
-    margin-left: 15px;
-    text-decoration: none;
-    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
 }
 
 /* HERO */
 .hero {
     text-align: center;
-    padding: 50px 15px;
+    padding: 40px 15px;
     background: linear-gradient(135deg, #0b3d91, #1e5ed6);
     color: white;
 }
@@ -65,12 +62,11 @@ nav a {
 
 /* FORM */
 .form-section {
-    max-width: 500px;
-    margin: -30px auto 20px auto;
-    padding: 20px;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    margin: -25px 10px 20px 10px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
 }
 
 h2 {
@@ -89,12 +85,14 @@ h2 {
 label {
     font-size: 13px;
     font-weight: 500;
+    display: block;
+    margin-top: 10px;
 }
 
 input, textarea {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin-top: 6px;
     border-radius: 6px;
     border: 1px solid #ccc;
     font-size: 13px;
@@ -110,21 +108,21 @@ button {
     background: #d4af37;
     color: white;
     border: none;
-    cursor: pointer;
     border-radius: 6px;
     font-weight: bold;
-    font-size: 14px;
+    margin-top: 15px;
+    cursor: pointer;
 }
 
 button:hover {
     background: #b8962e;
 }
 
-/* BINTANG */
+/* STAR */
 .stars {
     display: flex;
     gap: 4px;
-    margin-bottom: 10px;
+    margin-top: 5px;
 }
 
 .star {
@@ -136,46 +134,21 @@ button:hover {
 .star.active {
     color: #d4af37;
 }
-
-/* MOBILE EXTRA RAPII */
-@media (max-width: 600px) {
-
-header {
-    flex-direction: column;
-    text-align: center;
-}
-
-nav {
-    margin-top: 8px;
-}
-
-.hero {
-    padding: 40px 10px;
-}
-
-.form-section {
-    margin: -20px 10px 20px 10px;
-}
-
-}
 </style>
 
 </head>
 <body>
 
+<div class="wrapper">
+
 <header>
     <div class="logo-group">
         <img src="kemenkumham.png">
         <img src="imigrasi.png">
-        <div class="title">
-            <h3>Kantor Imigrasi Kelas I TPI Polonia</h3>
-        </div>
     </div>
-
-    <nav>
-        <a href="#">Beranda</a>
-        <a href="#form">Kritik & Saran</a>
-    </nav>
+    <div class="title">
+        Kantor Imigrasi Kelas I TPI Polonia
+    </div>
 </header>
 
 <section class="hero">
@@ -183,7 +156,7 @@ nav {
     <p>Bantu kami meningkatkan kualitas pelayanan dengan menyampaikan kritik dan saran terbaik Anda</p>
 </section>
 
-<section id="form" class="form-section">
+<section class="form-section">
 
 <h2>Formulir Kritik & Saran</h2>
 <p class="subtitle">Masukan Anda sangat berarti bagi kami</p>
@@ -215,6 +188,8 @@ nav {
 </form>
 
 </section>
+
+</div>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
