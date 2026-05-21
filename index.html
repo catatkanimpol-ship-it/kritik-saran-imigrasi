@@ -270,7 +270,7 @@ document.getElementById("feedbackForm").onsubmit = function(e){
         q4: ratings.q4,
         q5: ratings.q5,
         saran: saran.value,
-        waktu: new Date().toLocaleString()
+        waktu: Date.now()
     });
 
     document.getElementById("formSection").style.display="none";
