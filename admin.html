@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #eef2f7;
+}
+
+/* HEADER */
+header {
+    background: #0b3d91;
+    padding: 15px;
+}
+
+.logo-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    width: 35px;
+}
+
+.title {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* WRAPPER */
+.wrapper {
+    max-width: 1000px;
+    margin: auto;
+    padding: 15px;
+}
+
+/* STATS */
+.stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.box {
+    flex: 1;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* CHART */
+.chart-box {
+    background: white;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+}
+
+/* ANALISIS */
+.analisis {
+    background: #fff3cd;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+}
+
+/* DATA */
+.card {
+    background: white;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+    <div class="logo-group">
+        <img src="kemenkumham.png" class="logo">
+        <div class="title">Dashboard Admin Imigrasi</div>
+        <img src="imigrasi.png" class="logo">
+    </div>
+</header>
+
+<div class="wrapper">
+
+<h2>Data Kritik & Saran</h2>
+
+<!-- STAT -->
+<div class="stats">
+    <div class="box">
+        <h3 id="total">0</h3>
+        <p>Total Pengisi</p>
+    </div>
+
+    <div class="box">
+        <h3 id="avg">0</h3>
+        <p>Rata-rata Kepuasan</p>
+    </div>
+</div>
+
+<!-- CHART -->
+<div class="chart-box">
+    <canvas id="barChart"></canvas>
+</div>
+
+<div class="chart-box">
+    <canvas id="pieChart"></canvas>
+</div>
+
+<!-- ANALISIS -->
+<div class="analisis" id="analisis"></div>
+
+<!-- DATA -->
+<div id="dataContainer"></div>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBd3i2vUcMEl8xY0JAE9lMPBtORqT7__Uc",
+  authDomain: "kritik-saran-imigrasi.firebaseapp.com",
+  databaseURL: "https://kritik-saran-imigrasi-default-rtdb.firebaseio.com",
+  projectId: "kritik-saran-imigrasi"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let barChart, pieChart;
+
+db.ref("kritik_saran").on("value", snapshot => {
+
+    let total = 0;
+    let totalNilai = 0;
+
+    let q1=0,q2=0,q3=0,q4=0,q5=0;
+
+    const container = document.getElementById("dataContainer");
+    container.innerHTML = "";
+
+    snapshot.forEach(child => {
+        const d = child.val();
+        const key = child.key;
+
+        total++;
+
+        q1+=d.q1;
+        q2+=d.q2;
+        q3+=d.q3;
+        q4+=d.q4;
+        q5+=d.q5;
+
+        totalNilai += (d.q1+d.q2+d.q3+d.q4+d.q5)/5;
+
+        container.innerHTML += `
+        <div class="card">
+            <b>${d.nama}</b> (${d.hp})<br>
+            Pelayanan: ${"★".repeat(d.q1)}<br>
+            Kecepatan: ${"★".repeat(d.q2)}<br>
+            Kemudahan: ${"★".repeat(d.q3)}<br>
+            Informasi: ${"★".repeat(d.q4)}<br>
+            Kepuasan: ${"★".repeat(d.q5)}<br><br>
+            <b>Saran:</b> ${d.saran || "-"}<br><br>
+            <button class="delete-btn" onclick="hapus('${key}')">Hapus</button>
+        </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("avg").innerText = total ? (totalNilai/total).toFixed(1) : 0;
+
+    let dataChart = [
+        q1/total || 0,
+        q2/total || 0,
+        q3/total || 0,
+        q4/total || 0,
+        q5/total || 0
+    ];
+
+    // BAR
+    if(barChart) barChart.destroy();
+    barChart = new Chart(document.getElementById("barChart"), {
+        type: 'bar',
+        data: {
+            labels: ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
+            datasets: [{
+                label: 'Rata-rata',
+                data: dataChart
+            }]
+        }
+    });
+
+    // PIE
+    if(pieChart) pieChart.destroy();
+    pieChart = new Chart(document.getElementById("pieChart"), {
+        type: 'pie',
+        data: {
+            labels: ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
+            datasets: [{
+                data: dataChart
+            }]
+        }
+    });
+
+    // ANALISIS
+    let label = ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'];
+    let max = Math.max(...dataChart);
+    let min = Math.min(...dataChart);
+
+    document.getElementById("analisis").innerHTML =
+        "Pelayanan terbaik: <b>"+label[dataChart.indexOf(max)]+"</b><br>"+
+        "Perlu ditingkatkan: <b>"+label[dataChart.indexOf(min)]+"</b>";
+
+});
+
+function hapus(id){
+    if(confirm("Hapus data ini?")){
+        db.ref("kritik_saran/"+id).remove();
+    }
+}
+</script>
+
+</body>
+</html>
