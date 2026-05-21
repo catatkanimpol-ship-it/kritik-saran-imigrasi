@@ -3,171 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Admin</title>
+<title>Admin Super Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    background: #eef2f7;
+body { font-family:'Segoe UI'; margin:0; background:#eef2f7; }
+
+header { background:#0b3d91; padding:15px; text-align:center; color:white; }
+
+.wrapper { max-width:1200px; margin:auto; padding:20px; }
+
+input, select, button {
+    padding:8px; margin:5px; border-radius:6px; border:1px solid #ccc;
 }
 
-header {
-    background: #0b3d91;
-    padding: 15px;
-}
+button { background:#0b3d91; color:white; cursor:pointer; }
 
-.logo-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
+.stats { display:flex; gap:10px; flex-wrap:wrap; }
+.box { flex:1; background:white; padding:15px; border-radius:10px; text-align:center; }
 
-.logo { width: 40px; }
+.chart-box { background:white; padding:20px; margin-top:15px; border-radius:10px; }
 
-.title {
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.wrapper {
-    max-width: 1100px;
-    margin: auto;
-    padding: 20px;
-}
-
-h2 {
-    text-align: center;
-    color: #0b3d91;
-}
-
-/* FILTER */
-.filter-box {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-input, select {
-    padding: 8px;
-}
-
-button {
-    padding: 8px 12px;
-    border: none;
-    background: #0b3d91;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* STATS */
-.stats {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.box {
-    flex: 1;
-    min-width: 200px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-}
-
-/* CHART */
-.chart-box {
-    background: white;
-    padding: 20px;
-    margin-top: 15px;
-    border-radius: 10px;
-}
-
-/* DATA */
 .card {
-    background: white;
-    padding: 15px;
-    margin-top: 10px;
-    border-radius: 10px;
+    background:white;
+    padding:15px;
+    margin-top:10px;
+    border-radius:10px;
 }
 
-.star { color: #d4af37; }
+.star { color:#d4af37; }
 
-.delete-btn {
-    background: red;
-    color: white;
-    border: none;
-    padding: 6px;
-    border-radius: 5px;
-    margin-top: 10px;
-    cursor: pointer;
+.actions button {
+    margin-right:5px;
+    padding:5px 8px;
+    border:none;
+    border-radius:5px;
 }
+
+.delete { background:red; color:white; }
+.edit { background:orange; color:white; }
+.save { background:green; color:white; }
+
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logo-group">
-        <img src="kemenkumham.png" class="logo">
-        <div class="title">Dashboard Admin Imigrasi</div>
-        <img src="imigrasi.png" class="logo">
-    </div>
+<h2>Dashboard Admin Imigrasi</h2>
 </header>
 
 <div class="wrapper">
 
-<h2>Laporan Kritik & Saran</h2>
+<!-- FILTER -->
+<input type="text" id="search" placeholder="Cari nama...">
 
-<div class="filter-box">
-    <input type="date" id="startDate">
-    <input type="date" id="endDate">
-    
-    <select id="bulan">
-        <option value="">Semua Bulan</option>
-        <option value="0">Januari</option>
-        <option value="1">Februari</option>
-        <option value="2">Maret</option>
-        <option value="3">April</option>
-        <option value="4">Mei</option>
-        <option value="5">Juni</option>
-        <option value="6">Juli</option>
-        <option value="7">Agustus</option>
-        <option value="8">September</option>
-        <option value="9">Oktober</option>
-        <option value="10">November</option>
-        <option value="11">Desember</option>
-    </select>
+<input type="date" id="startDate">
+<input type="date" id="endDate">
 
-    <button onclick="applyFilter()">Filter</button>
-    <button onclick="exportExcel()">Export Excel</button>
-</div>
+<select id="bulan">
+<option value="">Semua Bulan</option>
+<option value="0">Jan</option>
+<option value="1">Feb</option>
+<option value="2">Mar</option>
+<option value="3">Apr</option>
+<option value="4">Mei</option>
+<option value="5">Jun</option>
+<option value="6">Jul</option>
+<option value="7">Agu</option>
+<option value="8">Sep</option>
+<option value="9">Okt</option>
+<option value="10">Nov</option>
+<option value="11">Des</option>
+</select>
 
+<button onclick="applyFilter()">Filter</button>
+<button onclick="exportExcel()">Export Excel</button>
+
+<!-- STATS -->
 <div class="stats">
-    <div class="box">
-        <h3 id="total">0</h3>
-        <p>Total Data</p>
-    </div>
-    <div class="box">
-        <h3 id="avg">0</h3>
-        <p>Rata-rata</p>
-    </div>
+<div class="box"><h3 id="total">0</h3>Total</div>
+<div class="box"><h3 id="avg">0</h3>Rata-rata</div>
 </div>
 
-<div class="chart-box">
-    <canvas id="barChart"></canvas>
-</div>
+<!-- CHART -->
+<div class="chart-box"><canvas id="chartUtama"></canvas></div>
+<div class="chart-box"><canvas id="chartBulanan"></canvas></div>
 
+<!-- DATA -->
 <div id="dataContainer"></div>
 
 </div>
@@ -178,47 +102,41 @@ button {
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyBd3i2vUcMEl8xY0JAE9lMPBtORqT7__Uc",
+  apiKey: "AIzaSy...",
   authDomain: "kritik-saran-imigrasi.firebaseapp.com",
   databaseURL: "https://kritik-saran-imigrasi-default-rtdb.firebaseio.com",
-  projectId: "kritik-saran-imigrasi"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let allData = [];
-let filteredData = [];
-let keys = [];
-let chart;
+let allData=[], filteredData=[], chart1, chart2;
 
 // LOAD DATA
 db.ref("kritik_saran").on("value", snap=>{
-    allData = [];
-    keys = [];
-    snap.forEach(child=>{
-        allData.push(child.val());
-        keys.push(child.key);
+    allData=[];
+    snap.forEach(c=>{
+        allData.push({...c.val(), key:c.key});
     });
     renderData(allData);
 });
 
 // FILTER
 function applyFilter(){
+    let searchVal = search.value.toLowerCase();
     let start = startDate.value ? new Date(startDate.value) : null;
     let end = endDate.value ? new Date(endDate.value) : null;
     let bulanVal = bulan.value;
 
-    filteredData = [];
+    filteredData = allData.filter(d=>{
+        let tgl = new Date(parseInt(d.waktu));
 
-    allData.forEach((d,i)=>{
-        let tgl = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
+        if(searchVal && !d.nama.toLowerCase().includes(searchVal)) return false;
+        if(start && tgl < start) return false;
+        if(end && tgl > end) return false;
+        if(bulanVal !== "" && tgl.getMonth()!=bulanVal) return false;
 
-        if(start && tgl < start) return;
-        if(end && tgl > end) return;
-        if(bulanVal !== "" && tgl.getMonth() != bulanVal) return;
-
-        filteredData.push({...d, key: keys[i]});
+        return true;
     });
 
     renderData(filteredData);
@@ -228,72 +146,82 @@ function applyFilter(){
 function renderData(data){
 
     let total=0,totalNilai=0;
-    let q1=0,q2=0,q3=0,q4=0,q5=0;
+    let q=[0,0,0,0,0];
+    let bulanCount = Array(12).fill(0);
 
     const container = document.getElementById("dataContainer");
     container.innerHTML="";
 
-    data.forEach((d, index)=>{
-
-        let tgl = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
+    data.forEach(d=>{
+        let tgl = new Date(parseInt(d.waktu));
 
         total++;
+        q[0]+=d.q1; q[1]+=d.q2; q[2]+=d.q3; q[3]+=d.q4; q[4]+=d.q5;
 
-        q1+=d.q1;
-        q2+=d.q2;
-        q3+=d.q3;
-        q4+=d.q4;
-        q5+=d.q5;
+        bulanCount[tgl.getMonth()]++;
 
         totalNilai += (d.q1+d.q2+d.q3+d.q4+d.q5)/5;
 
         container.innerHTML += `
         <div class="card">
         <b>${d.nama}</b><br>
-        <small>No HP: ${d.hp || "-"}</small><br>
-        <small>${tgl.toLocaleDateString('id-ID')}</small><br><br>
+        ${tgl.toLocaleDateString('id-ID')}<br>
+        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br>
+        ${d.saran}<br>
 
-        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br><br>
-
-        <b>Saran:</b><br>${d.saran || "-"}<br>
-
-        <button class="delete-btn" onclick="hapusData('${d.key || keys[index]}')">
-        Hapus
-        </button>
+        <div class="actions">
+        <button class="delete" onclick="hapus('${d.key}')">Hapus</button>
+        <button class="edit" onclick="edit('${d.key}')">Edit</button>
+        </div>
         </div>`;
     });
 
-    document.getElementById("total").innerText = total;
-    document.getElementById("avg").innerText = total ? (totalNilai/total).toFixed(1) : 0;
+    totalEl.innerText=total;
+    avgEl.innerText= total ? (totalNilai/total).toFixed(1):0;
 
-    if(total === 0){
-        updateChart([0,0,0,0,0]);
-        return;
-    }
+    // CHART UTAMA
+    updateChartUtama(q.map(x=> total? x/total:0));
 
-    updateChart([q1/total,q2/total,q3/total,q4/total,q5/total]);
+    // CHART BULANAN
+    updateChartBulanan(bulanCount);
 }
 
-// CHART
-function updateChart(data){
-    if(chart) chart.destroy();
-
-    chart = new Chart(document.getElementById("barChart"), {
+// CHART UTAMA
+function updateChartUtama(data){
+    if(chart1) chart1.destroy();
+    chart1 = new Chart(chartUtama,{
         type:'bar',
         data:{
             labels:['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
-            datasets:[{
-                label:'Rata-rata',
-                data:data
-            }]
+            datasets:[{data:data}]
+        }
+    });
+}
+
+// CHART BULANAN
+function updateChartBulanan(data){
+    if(chart2) chart2.destroy();
+    chart2 = new Chart(chartBulanan,{
+        type:'line',
+        data:{
+            labels:['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+            datasets:[{data:data}]
         }
     });
 }
 
 // HAPUS
-function hapusData(id){
-    if(confirm("Yakin hapus data?")){
+function hapus(id){
+    if(confirm("Hapus data?")){
         db.ref("kritik_saran/"+id).remove();
+    }
+}
+
+// EDIT
+function edit(id){
+    let nama = prompt("Edit nama:");
+    if(nama){
+        db.ref("kritik_saran/"+id).update({nama});
     }
 }
 
@@ -301,36 +229,17 @@ function hapusData(id){
 function exportExcel(){
     let data = filteredData.length ? filteredData : allData;
 
-    let csv = [];
-    csv.push(["No","Nama","No HP","Tanggal","Q1","Q2","Q3","Q4","Q5","Rata-rata","Saran"]);
+    let csv="Nama,Tanggal,Q1,Q2,Q3,Q4,Q5,Saran\n";
 
-    data.forEach((d,i)=>{
-        let rata = ((d.q1+d.q2+d.q3+d.q4+d.q5)/5).toFixed(1);
-        let tgl = d.waktu ? new Date(parseInt(d.waktu)).toLocaleString('id-ID') : "-";
-
-        csv.push([
-            i+1,
-            d.nama,
-            d.hp,
-            tgl,
-            d.q1,
-            d.q2,
-            d.q3,
-            d.q4,
-            d.q5,
-            rata,
-            `"${d.saran || "-"}"`
-        ]);
+    data.forEach(d=>{
+        csv+=`${d.nama},${new Date(parseInt(d.waktu)).toLocaleString('id-ID')},${d.q1},${d.q2},${d.q3},${d.q4},${d.q5},"${d.saran}"\n`;
     });
 
-    let csvContent = csv.map(e => e.join(",")).join("\n");
-
-    let blob = new Blob([csvContent], { type: 'text/csv' });
-
-    let link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "laporan_kritik_saran.csv";
-    link.click();
+    let blob = new Blob([csv]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="laporan.csv";
+    a.click();
 }
 </script>
 
