@@ -179,7 +179,7 @@ db.ref("kritik_saran").on("value", snapshot => {
         const d = child.val();
         const key = child.key;
 
-        let tanggal = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
+        let tanggal = d.waktu ? new Date(parseInt(d.waktu)) : Date.now();
 
         total++;
 
