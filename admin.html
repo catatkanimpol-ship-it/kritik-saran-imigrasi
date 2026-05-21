@@ -14,7 +14,6 @@ body {
     background: #eef2f7;
 }
 
-/* HEADER */
 header {
     background: #0b3d91;
     padding: 15px;
@@ -27,34 +26,62 @@ header {
     gap: 10px;
 }
 
-.logo {
-    width: 35px;
-}
+.logo { width: 40px; }
 
 .title {
     color: white;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
 }
 
-/* WRAPPER */
 .wrapper {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: auto;
+    padding: 20px;
+}
+
+h2 {
+    text-align: center;
+    color: #0b3d91;
+}
+
+/* FILTER */
+.filter-box {
+    background: white;
     padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+input, select {
+    padding: 8px;
+}
+
+/* BUTTON */
+button {
+    padding: 8px 12px;
+    border: none;
+    background: #0b3d91;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 /* STATS */
 .stats {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     flex-wrap: wrap;
 }
 
 .box {
     flex: 1;
+    min-width: 200px;
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     text-align: center;
 }
@@ -62,15 +89,7 @@ header {
 /* CHART */
 .chart-box {
     background: white;
-    padding: 15px;
-    margin-top: 15px;
-    border-radius: 10px;
-}
-
-/* ANALISIS */
-.analisis {
-    background: #fff3cd;
-    padding: 15px;
+    padding: 20px;
     margin-top: 15px;
     border-radius: 10px;
 }
@@ -83,17 +102,14 @@ header {
     border-radius: 10px;
 }
 
-.delete-btn {
-    background: red;
-    color: white;
-    border: none;
-    padding: 6px;
-    border-radius: 5px;
-    cursor: pointer;
+.star { color: #d4af37; }
+
+@media(max-width:600px){
+.filter-box { flex-direction: column; }
 }
 </style>
-
 </head>
+
 <body>
 
 <header>
@@ -106,39 +122,53 @@ header {
 
 <div class="wrapper">
 
-<h2>Data Kritik & Saran</h2>
+<h2>Laporan Kritik & Saran</h2>
 
-<!-- STAT -->
+<!-- FILTER -->
+<div class="filter-box">
+    <input type="date" id="startDate">
+    <input type="date" id="endDate">
+    
+    <select id="bulan">
+        <option value="">Semua Bulan</option>
+        <option value="0">Januari</option>
+        <option value="1">Februari</option>
+        <option value="2">Maret</option>
+        <option value="3">April</option>
+        <option value="4">Mei</option>
+        <option value="5">Juni</option>
+        <option value="6">Juli</option>
+        <option value="7">Agustus</option>
+        <option value="8">September</option>
+        <option value="9">Oktober</option>
+        <option value="10">November</option>
+        <option value="11">Desember</option>
+    </select>
+
+    <button onclick="applyFilter()">Filter</button>
+    <button onclick="exportExcel()">Export Excel</button>
+</div>
+
+<!-- STATS -->
 <div class="stats">
     <div class="box">
         <h3 id="total">0</h3>
-        <p>Total Pengisi</p>
+        <p>Total Data</p>
     </div>
-
     <div class="box">
         <h3 id="avg">0</h3>
-        <p>Rata-rata Kepuasan</p>
+        <p>Rata-rata</p>
     </div>
 </div>
 
-<!-- CHART -->
 <div class="chart-box">
     <canvas id="barChart"></canvas>
 </div>
 
-<div class="chart-box">
-    <canvas id="pieChart"></canvas>
-</div>
-
-<!-- ANALISIS -->
-<div class="analisis" id="analisis"></div>
-
-<!-- DATA -->
 <div id="dataContainer"></div>
 
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -153,22 +183,44 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let barChart, pieChart;
+let allData = [];
+let filteredData = [];
 
-db.ref("kritik_saran").on("value", snapshot => {
+db.ref("kritik_saran").on("value", snap=>{
+    allData = [];
+    snap.forEach(child=>{
+        allData.push(child.val());
+    });
+    renderData(allData);
+});
 
-    let total = 0;
-    let totalNilai = 0;
+function applyFilter(){
+    let start = new Date(startDate.value);
+    let end = new Date(endDate.value);
+    let bulan = bulanSelect.value;
 
+    filteredData = allData.filter(d=>{
+        let tgl = new Date(d.waktu);
+
+        if(startDate.value && tgl < start) return false;
+        if(endDate.value && tgl > end) return false;
+        if(bulan !== "" && tgl.getMonth() != bulan) return false;
+
+        return true;
+    });
+
+    renderData(filteredData);
+}
+
+function renderData(data){
+
+    let total=0,totalNilai=0;
     let q1=0,q2=0,q3=0,q4=0,q5=0;
 
     const container = document.getElementById("dataContainer");
-    container.innerHTML = "";
+    container.innerHTML="";
 
-    snapshot.forEach(child => {
-        const d = child.val();
-        const key = child.key;
-
+    data.forEach(d=>{
         total++;
 
         q1+=d.q1;
@@ -181,69 +233,45 @@ db.ref("kritik_saran").on("value", snapshot => {
 
         container.innerHTML += `
         <div class="card">
-            <b>${d.nama}</b> (${d.hp})<br>
-            Pelayanan: ${"★".repeat(d.q1)}<br>
-            Kecepatan: ${"★".repeat(d.q2)}<br>
-            Kemudahan: ${"★".repeat(d.q3)}<br>
-            Informasi: ${"★".repeat(d.q4)}<br>
-            Kepuasan: ${"★".repeat(d.q5)}<br><br>
-            <b>Saran:</b> ${d.saran || "-"}<br><br>
-            <button class="delete-btn" onclick="hapus('${key}')">Hapus</button>
-        </div>
-        `;
+        <b>${d.nama}</b><br>
+        ${new Date(d.waktu).toLocaleDateString('id-ID')}<br>
+        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br>
+        ${d.saran}
+        </div>`;
     });
 
-    document.getElementById("total").innerText = total;
-    document.getElementById("avg").innerText = total ? (totalNilai/total).toFixed(1) : 0;
+    totalEl.innerText = total;
+    avgEl.innerText = total ? (totalNilai/total).toFixed(1) : 0;
 
-    let dataChart = [
-        q1/total || 0,
-        q2/total || 0,
-        q3/total || 0,
-        q4/total || 0,
-        q5/total || 0
-    ];
+    updateChart([q1/total||0,q2/total||0,q3/total||0,q4/total||0,q5/total||0]);
+}
 
-    // BAR
-    if(barChart) barChart.destroy();
-    barChart = new Chart(document.getElementById("barChart"), {
-        type: 'bar',
-        data: {
-            labels: ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
-            datasets: [{
-                label: 'Rata-rata',
-                data: dataChart
-            }]
+let chart;
+function updateChart(data){
+    if(chart) chart.destroy();
+    chart = new Chart(barChart,{
+        type:'bar',
+        data:{
+            labels:['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
+            datasets:[{data:data}]
         }
     });
+}
 
-    // PIE
-    if(pieChart) pieChart.destroy();
-    pieChart = new Chart(document.getElementById("pieChart"), {
-        type: 'pie',
-        data: {
-            labels: ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'],
-            datasets: [{
-                data: dataChart
-            }]
-        }
+// EXPORT
+function exportExcel(){
+    let data = filteredData.length ? filteredData : allData;
+    let csv = "Nama,Tanggal,Q1,Q2,Q3,Q4,Q5,Saran\n";
+
+    data.forEach(d=>{
+        csv += `${d.nama},${d.waktu},${d.q1},${d.q2},${d.q3},${d.q4},${d.q5},"${d.saran}"\n`;
     });
 
-    // ANALISIS
-    let label = ['Pelayanan','Kecepatan','Kemudahan','Informasi','Kepuasan'];
-    let max = Math.max(...dataChart);
-    let min = Math.min(...dataChart);
-
-    document.getElementById("analisis").innerHTML =
-        "Pelayanan terbaik: <b>"+label[dataChart.indexOf(max)]+"</b><br>"+
-        "Perlu ditingkatkan: <b>"+label[dataChart.indexOf(min)]+"</b>";
-
-});
-
-function hapus(id){
-    if(confirm("Hapus data ini?")){
-        db.ref("kritik_saran/"+id).remove();
-    }
+    let blob = new Blob([csv], { type: 'text/csv' });
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "laporan.csv";
+    a.click();
 }
 </script>
 
