@@ -12,7 +12,6 @@ body {
     background: #eef2f7;
 }
 
-/* WRAPPER */
 .wrapper {
     max-width: 600px;
     margin: auto;
@@ -26,20 +25,17 @@ header {
 
 .logo-group {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     gap: 10px;
 }
 
-.logo {
-    width: 35px;
-}
+.logo { width: 35px; }
 
 .title {
     color: white;
     font-size: 14px;
     font-weight: 600;
-    white-space: nowrap;
 }
 
 /* HERO */
@@ -50,47 +46,18 @@ header {
     color: white;
 }
 
-.hero h1 {
-    font-size: 22px;
-    margin-bottom: 10px;
-}
-
-.hero p {
-    font-size: 14px;
-}
-
 /* FORM */
 .form-section {
     background: white;
     margin: -25px 10px 20px 10px;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-}
-
-h2 {
-    text-align: center;
-    color: #0b3d91;
-}
-
-.subtitle {
-    text-align: center;
-    font-size: 13px;
-    color: gray;
-}
-
-label {
-    font-size: 13px;
-    margin-top: 10px;
-    display: block;
 }
 
 input, textarea {
     width: 100%;
     padding: 10px;
-    margin-top: 5px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    margin-top: 8px;
 }
 
 button {
@@ -99,35 +66,27 @@ button {
     background: #d4af37;
     color: white;
     border: none;
-    border-radius: 6px;
-    margin-top: 15px;
-    cursor: pointer;
+    margin-top: 10px;
 }
 
 /* STAR */
-.stars {
-    display: flex;
-    gap: 4px;
+.stars { display: flex; gap: 5px; }
+.star { font-size: 22px; color: gray; cursor: pointer; }
+.star.active { color: gold; }
+
+/* SUCCESS */
+.success-box {
+    display: none;
+    text-align: center;
+    background: #d4edda;
+    color: #155724;
+    padding: 20px;
+    margin: 15px;
+    border-radius: 10px;
 }
 
-.star {
-    font-size: 22px;
-    color: #ccc;
-    cursor: pointer;
-}
-
-.star.active {
-    color: #d4af37;
-}
-
-/* MOBILE FIX */
-@media(max-width:500px){
-.title {
-    font-size: 12px;
-}
-.logo {
-    width: 28px;
-}
+.success-icon {
+    font-size: 40px;
 }
 </style>
 
@@ -139,48 +98,47 @@ button {
 <header>
     <div class="logo-group">
         <img src="kemenkumham.png" class="logo">
-
-        <div class="title">
-            Kantor Imigrasi Kelas I TPI Polonia
-        </div>
-
+        <div class="title">Kantor Imigrasi Kelas I TPI Polonia</div>
         <img src="imigrasi.png" class="logo">
     </div>
 </header>
 
 <section class="hero">
-    <h1>Suara Anda, Perbaikan Kami</h1>
-    <p>Bantu kami meningkatkan kualitas pelayanan dengan menyampaikan kritik dan saran terbaik Anda</p>
+    <h2>Suara Anda, Perbaikan Kami</h2>
 </section>
 
-<section class="form-section">
+<!-- SUCCESS -->
+<div class="success-box" id="successBox">
+    <div class="success-icon">✅</div>
+    <h3>Berhasil!</h3>
+    <p>Masukan Anda telah dikirim</p>
+</div>
 
-<h2>Formulir Kritik & Saran</h2>
-<p class="subtitle">Masukan Anda sangat berarti bagi kami</p>
+<section class="form-section" id="formSection">
 
 <form id="feedbackForm">
 
-<input type="text" id="nama" placeholder="Masukkan Nama Anda" required>
-<input type="text" id="hp" placeholder="Masukkan Nomor HP Anda" required>
+<input type="text" id="nama" placeholder="Nama" required>
+<input type="text" id="hp" placeholder="No HP" required>
 
-<label>Seberapa puas pelayanan?</label>
+<label>Pelayanan</label>
 <div class="stars" data-id="q1"></div>
 
-<label>Kecepatan pelayanan?</label>
+<label>Kecepatan</label>
 <div class="stars" data-id="q2"></div>
 
-<label>Kemudahan proses?</label>
+<label>Kemudahan</label>
 <div class="stars" data-id="q3"></div>
 
-<label>Kejelasan informasi?</label>
+<label>Informasi</label>
 <div class="stars" data-id="q4"></div>
 
-<label>Kepuasan keseluruhan?</label>
+<label>Kepuasan</label>
 <div class="stars" data-id="q5"></div>
 
-<textarea id="saran" placeholder="Tulis saran Anda..."></textarea>
+<textarea id="saran" placeholder="Saran"></textarea>
 
-<button type="submit">Kirim Masukan</button>
+<button type="submit">Kirim</button>
 
 </form>
 
@@ -197,10 +155,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBd3i2vUcMEl8xY0JAE9lMPBtORqT7__Uc",
   authDomain: "kritik-saran-imigrasi.firebaseapp.com",
   databaseURL: "https://kritik-saran-imigrasi-default-rtdb.firebaseio.com",
-  projectId: "kritik-saran-imigrasi",
-  storageBucket: "kritik-saran-imigrasi.firebasestorage.app",
-  messagingSenderId: "96342418861",
-  appId: "1:96342418861:web:d5e87aed6cf3a37a30ad24"
+  projectId: "kritik-saran-imigrasi"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -208,31 +163,37 @@ const db = firebase.database();
 
 let ratings = {q1:0,q2:0,q3:0,q4:0,q5:0};
 
-document.querySelectorAll(".stars").forEach(container => {
-    const id = container.getAttribute("data-id");
+// BINTANG
+document.querySelectorAll(".stars").forEach(container=>{
+    let id = container.dataset.id;
 
     for(let i=1;i<=5;i++){
         let star = document.createElement("span");
         star.innerHTML = "★";
         star.classList.add("star");
 
-        star.onclick = () => {
-            ratings[id] = i;
-            update(container, i);
+        star.onclick = ()=>{
+            ratings[id]=i;
+            container.querySelectorAll(".star").forEach((s,idx)=>{
+                s.classList.toggle("active", idx<i);
+            });
         };
 
         container.appendChild(star);
     }
 });
 
-function update(container, value){
-    container.querySelectorAll(".star").forEach((s,i)=>{
-        s.classList.toggle("active", i < value);
-    });
-}
-
+// SUBMIT
 document.getElementById("feedbackForm").onsubmit = function(e){
     e.preventDefault();
+
+    // VALIDASI BINTANG
+    for(let key in ratings){
+        if(ratings[key] === 0){
+            alert("Semua penilaian bintang wajib diisi!");
+            return;
+        }
+    }
 
     db.ref("kritik_saran").push({
         nama: nama.value,
@@ -246,8 +207,9 @@ document.getElementById("feedbackForm").onsubmit = function(e){
         waktu: new Date().toLocaleString()
     });
 
-    alert("Terima kasih! Masukan berhasil dikirim");
-    this.reset();
+    // TAMPILKAN SUKSES
+    document.getElementById("formSection").style.display = "none";
+    document.getElementById("successBox").style.display = "block";
 };
 </script>
 
