@@ -3,68 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Admin</title>
+<title>Dashboard Admin Imigrasi</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body { font-family:Arial; margin:0; background:#eef2f7; }
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #eef2f7;
+}
 
-header { background:#0b3d91; color:white; padding:15px; text-align:center; }
+/* HEADER */
+header {
+    background: #0b3d91;
+    padding: 15px;
+}
 
-.wrapper { max-width:1100px; margin:auto; padding:20px; }
+.logo-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
 
-.box { background:white; padding:15px; border-radius:10px; margin:10px; text-align:center; }
+.logo {
+    width: 45px;
+}
 
-.stats { display:flex; flex-wrap:wrap; }
+.title {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
 
-.chart-box { background:white; padding:20px; border-radius:10px; margin-top:10px; }
+/* CONTAINER */
+.wrapper {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
 
-.card { background:white; padding:15px; margin-top:10px; border-radius:10px; }
+/* STATS */
+.stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
-button { padding:6px 10px; border:none; border-radius:5px; margin-top:5px; cursor:pointer; }
-.delete { background:red; color:white; }
+.box {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
+/* CHART */
+.chart-box {
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 12px;
+}
+
+/* DATA CARD */
+.card {
+    background: white;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.star {
+    color: #d4af37;
+}
+
+/* BUTTON */
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+    .stats {
+        flex-direction: column;
+    }
+    .logo {
+        width: 35px;
+    }
+    .title {
+        font-size: 14px;
+    }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h2>Dashboard Admin Imigrasi</h2>
+    <div class="logo-group">
+        <img src="kemenkumham.png" class="logo">
+        <div class="title">Dashboard Admin Imigrasi Polonia</div>
+        <img src="imigrasi.png" class="logo">
+    </div>
 </header>
 
 <div class="wrapper">
 
+<!-- STAT -->
 <div class="stats">
-<div class="box">
-<h3 id="total">0</h3>
-<p>Total Data</p>
+    <div class="box">
+        <h3 id="total">0</h3>
+        <p>Total Data</p>
+    </div>
+
+    <div class="box">
+        <h3 id="avg">0</h3>
+        <p>Rata-rata Kepuasan</p>
+    </div>
 </div>
 
-<div class="box">
-<h3 id="avg">0</h3>
-<p>Rata-rata</p>
-</div>
-</div>
-
+<!-- CHART -->
 <div class="chart-box">
-<canvas id="chartUtama"></canvas>
+    <canvas id="chartUtama"></canvas>
 </div>
 
+<!-- DATA -->
 <div id="dataContainer"></div>
 
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
+// CONFIG FIREBASE (WAJIB ASLI)
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyBd3i2vUcMEl8xY0JAE9lMPBtORqT7__Uc",
   authDomain: "kritik-saran-imigrasi.firebaseapp.com",
-  databaseURL: "https://kritik-saran-imigrasi-default-rtdb.firebaseio.com"
+  databaseURL: "https://kritik-saran-imigrasi-default-rtdb.firebaseio.com",
+  projectId: "kritik-saran-imigrasi"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -73,7 +164,7 @@ const db = firebase.database();
 let chart;
 
 // LOAD DATA
-db.ref("kritik_saran").on("value", snap => {
+db.ref("kritik_saran").on("value", snapshot => {
 
     let total = 0;
     let totalNilai = 0;
@@ -83,48 +174,52 @@ db.ref("kritik_saran").on("value", snap => {
     const container = document.getElementById("dataContainer");
     container.innerHTML = "";
 
-    snap.forEach(child => {
+    snapshot.forEach(child => {
 
-        let d = child.val();
-        let key = child.key;
+        const d = child.val();
+        const key = child.key;
 
-        let tgl = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
+        let tanggal = d.waktu ? new Date(parseInt(d.waktu)) : new Date();
 
         total++;
 
-        q1+=d.q1;
-        q2+=d.q2;
-        q3+=d.q3;
-        q4+=d.q4;
-        q5+=d.q5;
+        q1+=d.q1 || 0;
+        q2+=d.q2 || 0;
+        q3+=d.q3 || 0;
+        q4+=d.q4 || 0;
+        q5+=d.q5 || 0;
 
-        totalNilai += (d.q1+d.q2+d.q3+d.q4+d.q5)/5;
+        totalNilai += ((d.q1||0)+(d.q2||0)+(d.q3||0)+(d.q4||0)+(d.q5||0))/5;
 
         container.innerHTML += `
         <div class="card">
-        <b>${d.nama}</b><br>
-        ${tgl.toLocaleDateString('id-ID')}<br>
-        ⭐ ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br>
-        ${d.saran || "-"}<br>
-        <button class="delete" onclick="hapus('${key}')">Hapus</button>
-        </div>`;
+            <b>${d.nama || "-"}</b><br>
+            <small>No HP: ${d.hp || "-"}</small><br>
+            <small>${tanggal.toLocaleDateString('id-ID')}</small><br><br>
+
+            <span class="star">★</span> ${d.q1} ${d.q2} ${d.q3} ${d.q4} ${d.q5}<br><br>
+
+            <b>Saran:</b><br>
+            ${d.saran || "-"}<br>
+
+            <button class="delete-btn" onclick="hapusData('${key}')">
+                Hapus
+            </button>
+        </div>
+        `;
     });
 
     document.getElementById("total").innerText = total;
     document.getElementById("avg").innerText = total ? (totalNilai/total).toFixed(1) : 0;
 
-    if(total === 0){
-        updateChart([0,0,0,0,0]);
-        return;
-    }
-
     updateChart([
-        q1/total,
-        q2/total,
-        q3/total,
-        q4/total,
-        q5/total
+        total ? q1/total : 0,
+        total ? q2/total : 0,
+        total ? q3/total : 0,
+        total ? q4/total : 0,
+        total ? q5/total : 0
     ]);
+
 });
 
 // CHART
@@ -144,9 +239,9 @@ function updateChart(data){
     });
 }
 
-// HAPUS
-function hapus(id){
-    if(confirm("Hapus data?")){
+// HAPUS DATA
+function hapusData(id){
+    if(confirm("Yakin ingin menghapus data ini?")){
         db.ref("kritik_saran/"+id).remove();
     }
 }
