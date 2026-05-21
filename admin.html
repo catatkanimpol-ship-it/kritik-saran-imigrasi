@@ -260,18 +260,56 @@ function updateChart(data){
 
 // EXPORT
 function exportExcel(){
-    let data = filteredData.length ? filteredData : allData;
-    let csv = "Nama,Tanggal,Q1,Q2,Q3,Q4,Q5,Saran\n";
 
-    data.forEach(d=>{
-        csv += `${d.nama},${d.waktu},${d.q1},${d.q2},${d.q3},${d.q4},${d.q5},"${d.saran}"\n`;
+    let data = filteredData.length ? filteredData : allData;
+
+    let csv = [];
+
+    // HEADER
+    csv.push([
+        "No",
+        "Nama",
+        "Nomor HP",
+        "Tanggal",
+        "Pelayanan",
+        "Kecepatan",
+        "Kemudahan",
+        "Informasi",
+        "Kepuasan",
+        "Rata-rata",
+        "Saran"
+    ]);
+
+    data.forEach((d, index)=>{
+
+        let tanggal = new Date(d.waktu).toLocaleString('id-ID');
+
+        let rata = ((d.q1+d.q2+d.q3+d.q4+d.q5)/5).toFixed(1);
+
+        csv.push([
+            index+1,
+            d.nama,
+            d.hp,
+            tanggal,
+            d.q1,
+            d.q2,
+            d.q3,
+            d.q4,
+            d.q5,
+            rata,
+            `"${d.saran || "-"}"`
+        ]);
     });
 
-    let blob = new Blob([csv], { type: 'text/csv' });
-    let a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = "laporan.csv";
-    a.click();
+    // FORMAT CSV RAPI
+    let csvContent = csv.map(e => e.join(",")).join("\n");
+
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "laporan_kritik_saran.csv";
+    link.click();
 }
 </script>
 
