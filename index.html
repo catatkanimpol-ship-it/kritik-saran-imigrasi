@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kritik & Saran - Imigrasi Polonia</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #f4f7fb;
+}
+
+/* HEADER */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0b3d91;
+    color: white;
+    padding: 15px 25px;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
+}
+
+.logo-group img {
+    width: 45px;
+    margin-right: 10px;
+}
+
+.title {
+    margin-left: 10px;
+}
+
+nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #0b3d91, #1e5ed6);
+    color: white;
+}
+
+.hero h1 {
+    font-size: 32px;
+}
+
+.hero p {
+    font-size: 18px;
+}
+
+/* FORM */
+.form-section {
+    max-width: 550px;
+    margin: -50px auto 40px auto;
+    padding: 35px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #0b3d91;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: gray;
+    margin-bottom: 20px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: #d4af37;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #b8962e;
+}
+
+/* BINTANG */
+.stars {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.star {
+    font-size: 26px;
+    color: #ccc;
+}
+
+.star.active {
+    color: #d4af37;
+}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo-group">
+        <img src="kemenkumham.png">
+        <img src="imigrasi.png">
+        <div class="title">
+            <h3>Kantor Imigrasi Kelas I TPI Polonia</h3>
+        </div>
+    </div>
+
+    <nav>
+        <a href="#">Beranda</a>
+        <a href="#form">Kritik & Saran</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <h1>Suara Anda, Perbaikan Kami</h1>
+    <p>Bantu kami meningkatkan kualitas pelayanan dengan menyampaikan kritik dan saran terbaik Anda</p>
+</section>
+
+<!-- FORM -->
+<section id="form" class="form-section">
+
+<h2>Formulir Kritik & Saran</h2>
+<p class="subtitle">Masukan Anda sangat berarti untuk peningkatan pelayanan kami</p>
+
+<form id="feedbackForm">
+
+<input type="text" id="nama" placeholder="Masukkan Nama Anda" required>
+<input type="text" id="hp" placeholder="Masukkan Nomor HP Anda" required>
+
+<label>Seberapa puas Anda terhadap pelayanan yang diberikan?</label>
+<div class="stars" data-id="q1"></div>
+
+<label>Bagaimana penilaian Anda terhadap kecepatan pelayanan?</label>
+<div class="stars" data-id="q2"></div>
+
+<label>Seberapa mudah proses pelayanan yang Anda jalani?</label>
+<div class="stars" data-id="q3"></div>
+
+<label>Apakah informasi yang diberikan mudah dipahami?</label>
+<div class="stars" data-id="q4"></div>
+
+<label>Bagaimana tingkat kepuasan Anda secara keseluruhan?</label>
+<div class="stars" data-id="q5"></div>
+
+<textarea id="saran" placeholder="Tuliskan saran atau masukan Anda di sini..."></textarea>
+
+<button type="submit">Kirim Masukan</button>
+
+</form>
+
+</section>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "ISI_API_KEY",
+  authDomain: "ISI_PROJECT.firebaseapp.com",
+  databaseURL: "https://ISI_PROJECT.firebaseio.com",
+  projectId: "ISI_PROJECT",
+  storageBucket: "ISI_PROJECT.appspot.com",
+  messagingSenderId: "ISI",
+  appId: "ISI"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// BINTANG
+let ratings = {q1:0,q2:0,q3:0,q4:0,q5:0};
+
+document.querySelectorAll(".stars").forEach(starContainer => {
+    const id = starContainer.getAttribute("data-id");
+
+    for(let i=1;i<=5;i++){
+        const span = document.createElement("span");
+        span.innerHTML = "★";
+        span.classList.add("star");
+
+        span.addEventListener("click", () => {
+            ratings[id] = i;
+            updateStars(starContainer, i);
+        });
+
+        starContainer.appendChild(span);
+    }
+});
+
+function updateStars(container, value){
+    const stars = container.querySelectorAll(".star");
+    stars.forEach((star, index) => {
+        star.classList.toggle("active", index < value);
+    });
+}
+
+// SUBMIT
+document.getElementById("feedbackForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const data = {
+        nama: document.getElementById("nama").value,
+        hp: document.getElementById("hp").value,
+        q1: ratings.q1,
+        q2: ratings.q2,
+        q3: ratings.q3,
+        q4: ratings.q4,
+        q5: ratings.q5,
+        saran: document.getElementById("saran").value,
+        waktu: new Date().toLocaleString()
+    };
+
+    db.ref("kritik_saran").push(data);
+
+    alert("Terima kasih! Masukan Anda sangat berarti bagi kami");
+
+    document.getElementById("feedbackForm").reset();
+});
+</script>
+
+</body>
+</html>
